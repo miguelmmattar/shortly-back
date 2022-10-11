@@ -2,7 +2,7 @@ import connection from '../connection/connection.js';
 import bcrypt from 'bcrypt';
 import joi from 'joi';
 
-function signUpSchema(req, res, next) {
+function authSchema(req, res, next) {
     const schema = joi.object({
         name: joi.string().max(100).empty(),
         email: joi.string().email().max(100).empty(),
@@ -30,8 +30,6 @@ async function allowSignUp(req, res, next) {
             FROM users 
                 WHERE email = $1;
         `, [email]);
-
-        console.log(user);
         if(user.rows[0]) {
             return res.status(409).send('Este e-mail já está cadastrado!');     
        }
@@ -42,7 +40,53 @@ async function allowSignUp(req, res, next) {
     next();
 }
 
+async function allowSignIn(req, res, next) {
+    const { email, password } = req.body;
+
+    try {
+        const user = await connection.query(`
+            SELECT
+                name, 
+                email,
+                "passwordHash" 
+            FROM users 
+                WHERE email = $1;
+        `, [email]);
+        
+        if(!user.rows[0]) {
+            return res.status(401).send('E-mail ou senha inválidos!');
+        }
+
+        const hash = user.rows[0].passwordHash;
+
+        if(!bcrypt.compareSync(password, hash)) {
+            return res.status(401).send('E-mail ou senha inválidos!');
+        }
+
+        const session = await connection.query(`
+            SELECT 
+                email 
+            FROM sessions 
+                WHERE email = $1;
+        `, [email]);
+        if(session.rows[0]) {
+            return res.status(401).send('Usuário já logado!');
+        }
+
+        res.locals.session = {
+            name: user.rows[0].name,
+            email: user.rows[0].email
+        };
+    
+    } catch(error) {
+        return res.status(500).send(error.message);
+    }
+
+    next();
+}
+
 export default {
-    signUpSchema,
-    allowSignUp
+    authSchema,
+    allowSignUp,
+    allowSignIn
 };

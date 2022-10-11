@@ -11,13 +11,31 @@ async function signUp(req, res) {
                 users (name, email, "passwordHash")
             VALUES ($1, $2, $3);
         `, [name, email, bcrypt.hashSync(password, 10)]);
+
+        res.sendStatus(201);
     } catch(error) {
         return res.status(500).send(error.message);
     }
+}
 
-    res.sendStatus(201);
+async function signIn(req, res) {
+    const token = uuid();
+    const session = {...res.locals.session, token: token};
+
+    try {
+        connection.query(`
+            INSERT INTO
+                sessions (name, email, token)
+            VALUES ($1, $2, $3);
+        `, [session.name, session.email, session.token]);
+
+        res.status(200).send({token: token});
+    } catch(error) {
+        return res.status(500).send(error.message);
+    }
 }
 
 export default {
-    signUp
+    signUp,
+    signIn
 };
