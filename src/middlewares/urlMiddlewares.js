@@ -19,6 +19,32 @@ function urlSchema(req, res, next) {
     next(); 
 }
 
+async function hasURL(req, res, next) {
+    const urlId = req.params.id;
+
+    try {
+        const url = await connection.query(`
+            SELECT 
+                id,
+                "shortUrl",
+                url
+            FROM urls
+                WHERE id = $1;
+        `,[urlId]);
+
+        if(!url.rows[0]) {
+            return res.status(401).send('Não foi possível encontrar a URL!');
+        }
+
+        res.locals.url = url.rows[0];
+    } catch(error) {
+        return res.status(500).send(error.message);
+    }
+    
+    next();
+}
+
 export default {
-    urlSchema
+    urlSchema,
+    hasURL
 };

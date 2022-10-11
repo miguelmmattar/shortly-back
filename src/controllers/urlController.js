@@ -16,10 +16,20 @@ async function postURL(req, res) {
     } catch(error) {
         return res.status(500).send(error.message);
     }
+}
 
-    res.send('ok')
+async function getURL(req, res) {
+    const { url } = res.locals;
+
+    try {
+        res.status(200).send(url);
+
+    } catch(error) {
+        return res.status(500).send(error.message);
+    }
 }
 
 export default {
-    postURL
+    postURL,
+    getURL
 }
