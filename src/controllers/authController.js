@@ -6,7 +6,7 @@ async function signUp(req, res) {
     const { name, email, password } = req.body;
 
     try {
-        connection.query(`
+        await connection.query(`
             INSERT INTO 
                 users (name, email, "passwordHash")
             VALUES ($1, $2, $3);
@@ -23,7 +23,7 @@ async function signIn(req, res) {
     const session = {...res.locals.session, token: token};
 
     try {
-        connection.query(`
+        await connection.query(`
             INSERT INTO
                 sessions (name, email, token)
             VALUES ($1, $2, $3);
