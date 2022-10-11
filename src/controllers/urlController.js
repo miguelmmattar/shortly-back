@@ -23,7 +23,24 @@ async function getURL(req, res) {
 
     try {
         res.status(200).send(url);
+    } catch(error) {
+        return res.status(500).send(error.message);
+    }
+}
 
+async function visitURL(req, res) {
+    const { id, visitCount, url } = res.locals.url;
+    const count = visitCount + 1;
+
+    try {
+        await connection.query(`
+            UPDATE
+                urls
+            SET "visitCount" = $1
+                WHERE id = $2;
+        `, [count, id]);
+
+        res.redirect(url);
     } catch(error) {
         return res.status(500).send(error.message);
     }
@@ -31,5 +48,6 @@ async function getURL(req, res) {
 
 export default {
     postURL,
-    getURL
+    getURL,
+    visitURL
 }

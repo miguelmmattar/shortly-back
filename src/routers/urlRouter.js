@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.post('/urls/shorten', urlMiddlewares.urlSchema, authMiddlewares.isAuthorized, urlController.postURL);
 router.get('/urls/:id', urlMiddlewares.hasURL, urlController.getURL);
+router.get('/urls/open/:shortUrl', urlMiddlewares.hasURL, urlController.visitURL);
 
 export default router;

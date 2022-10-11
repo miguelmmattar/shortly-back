@@ -25,9 +25,9 @@ async function signIn(req, res) {
     try {
         await connection.query(`
             INSERT INTO
-                sessions (name, email, token)
-            VALUES ($1, $2, $3);
-        `, [session.name, session.email, session.token]);
+                sessions (name, "userId", email, token)
+            VALUES ($1, $2, $3, $4);
+        `, [session.name, session.userId, session.email, session.token]);
 
         res.status(200).send({token: token});
     } catch(error) {

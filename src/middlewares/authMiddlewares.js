@@ -46,6 +46,7 @@ async function allowSignIn(req, res, next) {
     try {
         const user = await connection.query(`
             SELECT
+                id,
                 name, 
                 email,
                 "passwordHash" 
@@ -74,6 +75,7 @@ async function allowSignIn(req, res, next) {
         }
 
         res.locals.session = {
+            userId: user.rows[0].id,
             name: user.rows[0].name,
             email: user.rows[0].email
         };

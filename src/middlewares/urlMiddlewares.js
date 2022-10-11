@@ -20,20 +20,34 @@ function urlSchema(req, res, next) {
 }
 
 async function hasURL(req, res, next) {
-    const urlId = req.params.id;
+    const { id, shortUrl } = req.params;
+    let url;
 
     try {
-        const url = await connection.query(`
+        if(id) {
+            url = await connection.query(`
             SELECT 
                 id,
                 "shortUrl",
                 url
             FROM urls
                 WHERE id = $1;
-        `,[urlId]);
+        `,[id]);
+        }
 
+        if(shortUrl) {
+            url = await connection.query(`
+            SELECT 
+                id,
+                "visitCount",
+                url
+            FROM urls
+                WHERE "shortUrl" = $1;
+        `,[shortUrl]);
+        }
+        
         if(!url.rows[0]) {
-            return res.status(401).send('Não foi possível encontrar a URL!');
+            return res.status(404).send('Não foi possível encontrar a URL!');
         }
 
         res.locals.url = url.rows[0];
