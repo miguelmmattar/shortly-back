@@ -46,8 +46,25 @@ async function visitURL(req, res) {
     }
 }
 
+async function deleteURL(req, res) {
+    const { id } = res.locals.url;
+
+    try {
+        await connection.query(`
+            DELETE FROM
+                urls
+                WHERE id = $1;
+        `, [id]);
+
+        res.sendStatus(204);
+    } catch(error) {
+        return res.status(500).send(error.message);
+    }
+}
+
 export default {
     postURL,
     getURL,
-    visitURL
+    visitURL,
+    deleteURL
 }

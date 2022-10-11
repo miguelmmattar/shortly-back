@@ -29,7 +29,8 @@ async function hasURL(req, res, next) {
             SELECT 
                 id,
                 "shortUrl",
-                url
+                url,
+                "userId"
             FROM urls
                 WHERE id = $1;
         `,[id]);
@@ -58,7 +59,18 @@ async function hasURL(req, res, next) {
     next();
 }
 
+function allowDelete(req, res, next) {
+    const { session, url } = res.locals;
+
+    if(session.userId !== url.userId) {
+        return res.status(401).send('Usuário não autorizado!');
+    }
+    
+    next();
+}
+
 export default {
     urlSchema,
-    hasURL
+    hasURL,
+    allowDelete
 };
