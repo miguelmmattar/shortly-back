@@ -6,6 +6,6 @@ import authMiddlewares from '../middlewares/authMiddlewares.js';
 const router = express.Router();
 
 router.get('/users/me', authMiddlewares.isAuthorized, usersMiddlewares.isUser, usersController.getUser);
-
+router.get('/ranking', usersController.getRanking);
 
 export default router;
